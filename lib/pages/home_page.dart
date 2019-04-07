@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:agenda_contatos_2/helpers/contact_helper.dart';
+import 'package:agenda_contatos_2/pages/contact_page.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,6 +16,10 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _getAllContacts();
+  }
+
+  void _getAllContacts() {
     helper.getAllContacts().then((list) {
       setState(() {
         this.constacts = list;
@@ -33,7 +38,7 @@ class _HomePageState extends State<HomePage> {
       backgroundColor: Colors.white,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          print("olá fui clicado");
+          _showContactPage();
         },
         backgroundColor: Colors.red,
         child: Icon(Icons.add),
@@ -50,6 +55,9 @@ class _HomePageState extends State<HomePage> {
 
   Widget _contactCard(BuildContext context, int index) {
     return GestureDetector(
+      onTap: (){
+        _showContactPage(contact: constacts[index]);
+      },
       child: Card(
         child: Padding(
           padding: EdgeInsets.all(10),
@@ -91,4 +99,17 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  void _showContactPage({Contact contact}) async{
+   final recContact = await  Navigator.push(context, MaterialPageRoute(builder: (context) => ContactPage(contact: contact,)));
+    if (recContact != null) {
+      if (contact != null) {
+         await helper.update(recContact);
+      } else {
+        await helper.saveContact(recContact);
+      }
+      _getAllContacts();
+    }
+  }
+  
 }
